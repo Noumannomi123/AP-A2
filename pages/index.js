@@ -2,6 +2,8 @@ import Head from "next/head";
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +16,20 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
+  const router = useRouter();
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    // Fetch movies data from the JSON file
+    fetch('/movies.json')
+      .then((response) => response.json())
+      .then((data) => {
+        // Assuming trending movies are those with a rating above 8.5
+        const trendingMovies = data.movies.filter(movie => movie.rating > 8.5);
+        setMovies(trendingMovies);
+      });
+  }, []);
+
   return (
     <>
       <Head>
@@ -65,6 +81,16 @@ export default function Home() {
             >
               Read our docs
             </a>
+          </div>
+
+          <div>
+            <h1>Trending Movies</h1>
+            <ul>
+              {movies.map((movie) => (
+                <li key={movie.id}>{movie.title} - Rating: {movie.rating}</li>
+              ))}
+            </ul>
+            <button onClick={() => router.push('/genres')}>Browse Genres</button>
           </div>
         </main>
         <footer className={styles.footer}>
